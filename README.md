@@ -1,6 +1,6 @@
-# RAG with Sources Tutorial
+# Streamlit Gemini Chatbot with sessions
 
-Welcome to the RAG with Sources Tutorial! This project demonstrates how to build a chatbot using Streamlit and Google's Generative AI model. The chatbot can save and load past chat sessions, generate chat session names, and provide helpful responses to user inputs.
+This project demonstrates how to build a chatbot using Streamlit and Google's Generative AI model. The chatbot can save and load past chat sessions, generate chat session names, and provide helpful responses to user inputs.
 
 ## Table of Contents
 
@@ -56,7 +56,7 @@ Welcome to the RAG with Sources Tutorial! This project demonstrates how to build
 ## Project Structure
 
 ```
-rag-with-sources-tutorial/
+chatbot-with-chat-sessions/
 ├── app.py
 ├── utils.py
 ├── requirements.txt
@@ -82,7 +82,3 @@ rag-with-sources-tutorial/
 ## Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request with your changes. Ensure that your code follows the project's coding standards and includes appropriate tests.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
