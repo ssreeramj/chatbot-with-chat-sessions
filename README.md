@@ -16,8 +16,8 @@ This project demonstrates how to build a chatbot using Streamlit and Google's Ge
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/yourusername/rag-with-sources-tutorial.git
-    cd rag-with-sources-tutorial
+    git clone https://github.com/ssreeramj/chatbot-with-chat-sessions.git
+    cd chatbot-with-chat-sessions
     ```
 
 2. **Create a virtual environment and activate it:**

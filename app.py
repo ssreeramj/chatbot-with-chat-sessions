@@ -11,7 +11,6 @@ from utils import (
     format_chat_history,
     generate_chat_session_name,
     initialize_new_chat,
-    load_past_chat_sessions,
     select_chat_session,
 )
 
@@ -24,14 +23,9 @@ genai.configure(api_key=GOOGLE_API_KEY)
 st.set_page_config(
     page_title="Chatbot",
     page_icon="🤖",
-    menu_items={
-        "Get Help": "https://www.extremelycoolapp.com/help",
-        "Report a bug": "https://www.extremelycoolapp.com/bug",
-        "About": "# This is a header. This is an *extremely* cool app!",
-    },
 )
 
-st.title("🤖 RAG")
+st.title("🤖 Chatbot with Chat Sessions")
 
 # Set OpenAI API key from Streamlit secrets
 model = genai.GenerativeModel(model_name="gemini-2.0-flash-exp")
@@ -49,7 +43,7 @@ with st.sidebar:
     st.write("## Historical Chat Sessions")
 
     st.selectbox(
-        label="Pick a past chat",
+        label="Select a chat session",
         options=st.session_state.selectbox_options,
         format_func=lambda x: st.session_state.chat_sessions.get(
             x,
@@ -60,6 +54,7 @@ with st.sidebar:
         placeholder="_",
         key="chat_session_selectbox",
         on_change=select_chat_session,
+        help="You can resume any historical chat session or start a new one",
     )
 
     st.divider()

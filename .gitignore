@@ -10,3 +10,4 @@ faiss-vdbs
 *.faiss
 
 notebooks
+chat-sessions
