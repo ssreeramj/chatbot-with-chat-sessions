@@ -2,6 +2,8 @@
 
 This project demonstrates how to build a chatbot using Streamlit and Google's Generative AI model. The chatbot can save and load past chat sessions, generate chat session names, and provide helpful responses to user inputs.
 
+![Chatbot Interface](screenshot.png)
+
 ## Table of Contents
 
 - [Installation](#installation)
