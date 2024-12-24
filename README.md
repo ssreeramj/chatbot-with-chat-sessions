@@ -1,69 +1,88 @@
-# Automobile Manuals Question Answering Chatbot
+# RAG with Sources Tutorial
 
-## Prerequisites
-- Python 3.8+
-- Git
-- pip
+Welcome to the RAG with Sources Tutorial! This project demonstrates how to build a chatbot using Streamlit and Google's Generative AI model. The chatbot can save and load past chat sessions, generate chat session names, and provide helpful responses to user inputs.
 
-## Setup Instructions
+## Table of Contents
 
-### 1. Clone the Repository
-```bash
-git clone https://bitbucket.org/v4c_work/gen_ai_hack4ce.git
-```
+- [Installation](#installation)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Features](#features)
+- [Contributing](#contributing)
+- [License](#license)
 
-### 2. Create Virtual Environment
-```bash
-# Create virtual environment
-python -m venv .venv
+## Installation
 
-# Activate virtual environment
-# On Windows
-.venv\Scripts\activate
-# On macOS/Linux
-source .venv/bin/activate
-```
+1. **Clone the repository:**
 
-### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
+    ```bash
+    git clone https://github.com/yourusername/rag-with-sources-tutorial.git
+    cd rag-with-sources-tutorial
+    ```
 
-### 3. Create .env file
-Paste these commands in the `.env` file and enter the openai api key and langchain api key.
-```bash
-OPENAI_API_KEY=<openai-api-key>
-LANGCHAIN_TRACING_V2=true
-LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
-LANGCHAIN_API_KEY=<langchain-api-key>
-LANGCHAIN_PROJECT="chennai-genai-hackathon"
-```
+2. **Create a virtual environment and activate it:**
 
-### 4. Optional: Upload PDFs
-Place your PDF documents in the `pdf-docs` folder.
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    ```
 
-### 5. Create Vector Database
-```bash
-python create_vectordb.py
-```
-This command processes the PDFs and creates a vector database for semantic search.
+3. **Install the required dependencies:**
 
-### 6. Start PDF File Server
-```bash
-python -m http.server 8003
-```
-Opens a local server to display PDF files.
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### 7. Run Streamlit Application
-```bash
-streamlit run app.py
-```
-Launch the interactive question-answering interface.
+4. **Set up environment variables:**
+
+    Create a `.env` file in the root directory and add your Google API key:
+
+    ```env
+    GOOGLE_API_KEY=<your_google_api_key>
+    ```
 
 ## Usage
-After following the setup steps, navigate to the Streamlit app in your browser and start asking questions about your uploaded PDFs.
 
-## Troubleshooting
-- Ensure all dependencies are installed correctly
-- Check that PDFs are in the correct folder
-- Verify Python version compatibility
+1. **Run the Streamlit app:**
+
+    ```bash
+    streamlit run app.py
+    ```
+
+2. **Interact with the chatbot:**
+
+    Open your browser and go to `http://localhost:8501` to interact with the chatbot. You can start a new chat session, view past sessions, and get responses from the AI model.
+
+## Project Structure
+
+```
+rag-with-sources-tutorial/
+├── app.py
+├── utils.py
+├── requirements.txt
+├── .env.example
+├── README.md
+└── chat-sessions/
+```
+
+- `app.py`: Main application file that sets up the Streamlit interface and handles user interactions.
+- `utils.py`: Utility functions for managing chat sessions, formatting chat history, and generating chat session names.
+- `requirements.txt`: List of Python dependencies required for the project.
+- `.env.example`: Example environment file to set up your API keys.
+- `README.md`: This file.
+- `chat-sessions/`: Directory to store chat session data.
+
+## Features
+
+- **Chatbot Interface:** A user-friendly interface to interact with the chatbot.
+- **Session Management:** Save and load past chat sessions.
+- **Dynamic Chat Titles:** Generate unique chat session names based on user input.
+- **Streaming Responses:** Display AI responses in a streaming manner for a more interactive experience.
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request with your changes. Ensure that your code follows the project's coding standards and includes appropriate tests.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.

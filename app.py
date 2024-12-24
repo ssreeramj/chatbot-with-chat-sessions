@@ -1,129 +1,113 @@
-import time
 import os
-import joblib
-import streamlit as st
+import time
+
 import google.generativeai as genai
+import streamlit as st
 from dotenv import load_dotenv
+from rich.console import Console
 
+from utils import (
+    create_folder_if_not_exists,
+    format_chat_history,
+    generate_chat_session_name,
+    initialize_new_chat,
+    load_past_chat_sessions,
+    select_chat_session,
+)
+
+console = Console()
 load_dotenv()
-
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 genai.configure(api_key=GOOGLE_API_KEY)
 
-new_chat_id = f"{time.time()}"
-
-# Create a data/ folder if it doesn't already exist
-try:
-    os.mkdir("data/")
-except:
-    # data/ folder already exists
-    pass
-
-# Load past chats (if available)
-try:
-    past_chats: dict = joblib.load("data/past_chats_list")
-except:
-    past_chats = {}
-
-# Sidebar allows a list of past chats
-with st.sidebar:
-    st.write("# Past Chats")
-    if st.session_state.get("chat_id") is None:
-        st.session_state.chat_id = st.selectbox(
-            label="Pick a past chat",
-            options=[new_chat_id] + list(past_chats.keys()),
-            format_func=lambda x: past_chats.get(x, "New Chat"),
-            placeholder="_",
-        )
-    else:
-        # This will happen the first time AI response comes in
-        st.session_state.chat_id = st.selectbox(
-            label="Pick a past chat",
-            options=[new_chat_id, st.session_state.chat_id] + list(past_chats.keys()),
-            index=1,
-            format_func=lambda x: past_chats.get(
-                x,
-                "New Chat"
-                if x != st.session_state.chat_id
-                else st.session_state.chat_title,
-            ),
-            placeholder="_",
-        )
-    # Save new chats after a message has been sent to AI
-    # TODO: Give user a chance to name chat
-    st.session_state.chat_title = f"ChatSession-{st.session_state.chat_id}"
-
-st.write("# Chat with Gemini")
-
-# Chat history (allows to ask multiple questions)
-try:
-    st.session_state.messages = joblib.load(
-        f"data/{st.session_state.chat_id}-st_messages"
-    )
-    st.session_state.gemini_history = joblib.load(
-        f"data/{st.session_state.chat_id}-gemini_messages"
-    )
-    print("old cache")
-except:
-    st.session_state.messages = []
-    st.session_state.gemini_history = []
-    print("new_cache made")
-st.session_state.model = genai.GenerativeModel("gemini-pro")
-st.session_state.chat = st.session_state.model.start_chat(
-    history=st.session_state.gemini_history,
+st.set_page_config(
+    page_title="Chatbot",
+    page_icon="🤖",
+    menu_items={
+        "Get Help": "https://www.extremelycoolapp.com/help",
+        "Report a bug": "https://www.extremelycoolapp.com/bug",
+        "About": "# This is a header. This is an *extremely* cool app!",
+    },
 )
+
+st.title("🤖 RAG")
+
+# Set OpenAI API key from Streamlit secrets
+model = genai.GenerativeModel(model_name="gemini-2.0-flash-exp")
+
+# create data folder to store chat sessions
+create_folder_if_not_exists("chat-sessions/")
+
+# Initialize new chat session
+if "messages" not in st.session_state:
+    initialize_new_chat()
+
+
+# Sidebar
+with st.sidebar:
+    st.write("## Historical Chat Sessions")
+
+    st.selectbox(
+        label="Pick a past chat",
+        options=st.session_state.selectbox_options,
+        format_func=lambda x: st.session_state.chat_sessions.get(
+            x,
+            "New Chat"
+            if "chat_title" not in st.session_state
+            else st.session_state.chat_title,
+        ),
+        placeholder="_",
+        key="chat_session_selectbox",
+        on_change=select_chat_session,
+    )
+
+    st.divider()
+
+    st.button(
+        "New Chat :broom:",
+        help="Click to start a new chat session",
+        on_click=initialize_new_chat,
+    )
+
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
-    with st.chat_message(
-        name=message["role"],
-    ):
+    with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# React to user input
-if prompt := st.chat_input("Your message here..."):
-    # Save this as a chat for later
-    if st.session_state.chat_id not in past_chats.keys():
-        past_chats[st.session_state.chat_id] = st.session_state.chat_title
-        joblib.dump(past_chats, "data/past_chats_list")
+# Accept user input
+if prompt := st.chat_input("What is up?"):
     # Display user message in chat message container
     with st.chat_message("user"):
         st.write(prompt)
-    # Add user message to chat history
-    st.session_state.messages.append(
-        dict(
-            role="user",
-            content=prompt,
-        )
-    )
-    ## Send message to AI
-    response = st.session_state.chat.send_message(
-        prompt,
-        stream=True,
-    )
-    # Display assistant response in chat message container
-    with st.chat_message(
-        name="ai",
-    ):
-        full_response = st.write_stream(response.text)
-        # Write full message with placeholder
-        # message_placeholder.write(full_response)
+        if len(st.session_state.messages) < 2:
+            generate_chat_session_name(
+                user_input=prompt,
+                model=model,
+            )
 
-    # Add assistant response to chat history
-    st.session_state.messages.append(
-        dict(
-            role="ai",
-            content=st.session_state.chat.history[-1].parts[0].text,
-        )
-    )
-    st.session_state.gemini_history = st.session_state.chat.history
-    # Save to file
-    joblib.dump(
-        st.session_state.messages,
-        f"data/{st.session_state.chat_id}-st_messages",
-    )
-    joblib.dump(
-        st.session_state.gemini_history,
-        f"data/{st.session_state.chat_id}-gemini_messages",
-    )
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        formatted_prompt = format_chat_history()
+        response = model.generate_content(formatted_prompt, stream=True)
+
+        # display streaming response
+        ai_msg_placeholder = st.empty()
+        full_response = ""
+        # Streams in a chunk at a time
+        for chunk in response:
+            # Simulate stream of chunk
+            for ch in chunk.text.split(" "):
+                full_response += ch + " "
+                time.sleep(0.05)
+                # Rewrites with a cursor at end
+                ai_msg_placeholder.write(full_response + "|")
+
+        # Write full message with placeholder
+        ai_msg_placeholder.write(full_response)
+
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
