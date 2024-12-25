@@ -6,6 +6,8 @@ from pathlib import Path
 import joblib
 import streamlit as st
 from rich.console import Console
+from rich.pretty import pprint
+import json
 
 console = Console()
 
@@ -30,7 +32,6 @@ def load_past_chat_sessions(dir="chat-sessions", file_name="chat-id-mappings"):
     """
     try:
         chat_sessions: dict = joblib.load(Path(__file__).parent / dir / file_name)
-        console.print(chat_sessions, style="red")
     except FileNotFoundError:
         console.log("No past chat sessions found", style="yellow")
         chat_sessions = {}
@@ -75,7 +76,7 @@ def initialize_new_chat():
     st.session_state.selectbox_options = [st.session_state.chat_id] + sorted(
         list(st.session_state.chat_sessions.keys()), key=float, reverse=True
     )
-    st.session_state.chat_session_selectbox = st.session_state.chat_id
+    # st.session_state.chat_session_selectbox = st.session_state.chat_id
 
     if "chat_title" in st.session_state:
         del st.session_state["chat_title"]
@@ -85,7 +86,6 @@ def initialize_new_chat():
     ]
 
     console.print("New chat session initialized", style="blue bold")
-    console.print(st.session_state)
 
 
 def generate_chat_session_name(user_input: str, model) -> str:
@@ -120,19 +120,28 @@ def select_chat_session():
     function to select a chat session
     """
     console.print("Selectbox updated", style="bold blue")
-    console.print(st.session_state, style="yellow bold")
-
     # save the current chat session if valid
     save_chat_session()
 
     # get the selectoin from selectbox
     # assign chat id
-    console.print(st.session_state.chat_id)
     if st.session_state.chat_id != st.session_state.chat_session_selectbox:
         st.session_state.chat_id = st.session_state.chat_session_selectbox
 
+        st.session_state.selectbox_options = [st.session_state.chat_id] + sorted(
+            [
+                opt
+                for opt in st.session_state.selectbox_options
+                if opt != st.session_state.chat_id
+            ],
+            key=float,
+            reverse=True,
+        )
+
         # assign chat title
-        # st.session_state.chat_title = st.session_state.chat_sessions.get(st.session_state.chat_id)
+        st.session_state.chat_title = st.session_state.chat_sessions.get(
+            st.session_state.chat_id
+        )
         # assign messages
         # check if the switch is to a new chat
         try:
@@ -146,3 +155,4 @@ def select_chat_session():
         except:
             console.print_exception()
             st.stop()
+

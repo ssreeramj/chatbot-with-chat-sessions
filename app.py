@@ -45,12 +45,7 @@ with st.sidebar:
     st.selectbox(
         label="Select a chat session",
         options=st.session_state.selectbox_options,
-        format_func=lambda x: st.session_state.chat_sessions.get(
-            x,
-            "New Chat"
-            if "chat_title" not in st.session_state
-            else st.session_state.chat_title,
-        ),
+        format_func=lambda x: st.session_state.chat_sessions.get(x, "New Chat"),
         placeholder="_",
         key="chat_session_selectbox",
         on_change=select_chat_session,
@@ -60,7 +55,7 @@ with st.sidebar:
     st.divider()
 
     st.button(
-        "New Chat :broom:",
+        "New Chat 📝",
         help="Click to start a new chat session",
         on_click=initialize_new_chat,
     )
